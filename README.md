@@ -44,3 +44,8 @@ Lightweight Javascript MVC framework
       title: 'string',
       rating: 'number'
     })
+    
+**Architecture overview**
+
+![image](![image](https://drive.google.com/uc?export=download&id=0B0JvQixJ3vfKX0lESjExNWNaYmc)
+)
