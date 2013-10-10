@@ -5,20 +5,20 @@ Lightweight Javascript MVC framework
 
 **Sample usage**
 
-    App = Ramaze.Application.create();
+    App = Skull.Application.create();
 
     App.Router.define({
       '/movies': 'App.MoviesIndexRoute'
-    })
+    });
 
-    App.MoviesIndexRoute = Ramaze.Route.extend({
+    App.MoviesIndexRoute = Skull.Route.extend({
       controller: 'App.Router.MoviesIndexController',
       view: 'App.Router.MoviesIndexView'
 
       // Apply naming convention to set up controller and view by default
     });
 
-    App.MoviesIndexController = Ramaze.Controller.extend({
+    App.MoviesIndexController = Skull.Controller.extend({
       initialize: function() {
         this.set('movies', App.Movie.find());
       }
@@ -26,9 +26,9 @@ Lightweight Javascript MVC framework
       movieClick: function(movie) {
 
       }
-    })
+    });
 
-    App.MoviesIndexView = Ramaze.View.extend({
+    App.MoviesIndexView = Skull.View.extend({
       templateName: 'movies_index'
     })
 
@@ -40,7 +40,7 @@ Lightweight Javascript MVC framework
 
     // When the route is called, create an instance of route, controller, and view
 
-    App.Movie = Ramaze.Model.extend({
+    App.Movie = Skull.Model.extend({
       title: 'string',
       rating: 'number'
     })
