@@ -47,5 +47,5 @@ Lightweight Javascript MVC framework
     
 **Architecture overview**
 
-![image](![image](https://drive.google.com/uc?export=download&id=0B0JvQixJ3vfKX0lESjExNWNaYmc)
-)
+![image](https://drive.google.com/uc?export=download&id=0B0JvQixJ3vfKX0lESjExNWNaYmc)
+
