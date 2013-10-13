@@ -27,19 +27,34 @@ Skull.Object = Class.create({
 });
 
 /**
-  Return a collection of class methods that are available for all classes in Skull.
+  A collection of class methods that are available for all classes in Skull.
   It contains core methods like extend() and create() which are copied to
-  the constructors created using extend() itself.
+  the constructors of all classes.
 */
-var classMethods = function() {
-  return {
+Skull.ClassMixin = (function() {
+  this.classMethods = {
+    /**
+      Create a new "class" that extends the current "class". For example:
+
+        var Person = Skull.Object.extend({
+          say: function() {
+            console.log("Hello");
+          }
+        });
+
+      The custom arguments are added to the prototype of the subclass.
+      All instances of the subclass have access to the custom arguments.
+    */
     extend: function() {
       var subclass = Class.create(this, arguments[0]);
-      Object.extend(subclass, classMethods());
+      this.ClassMixin.apply(subclass);
 
       return subclass;
     },
 
+    /**
+      Create a new "instance" of the current class
+    */
     create: function() {
       var instance = new this();
       if (arguments.length > 0 && typeof arguments === 'object') {
@@ -48,10 +63,21 @@ var classMethods = function() {
 
       return instance;
     }
-  }
-};
+  };
+
+  /**
+    Apply the mixin to a given class.
+    Keep a reference to the mixin in the class for later use.
+  */
+  this.apply = function(aClass) {
+    Object.extend(aClass, this.classMethods);
+    aClass.ClassMixin = this;
+  };
+
+  return this;
+})();
 
 /**
-  Add the class methods to Skull.Object.
+  Apply the ClassMixin to Skull.Object
 */
-Object.extend(Skull.Object, classMethods());
+Skull.ClassMixin.apply(Skull.Object);
