@@ -21,10 +21,10 @@ Skull.P = function() {
   return this;
 }
 
-// TODO: Make sure we have prototype included
-Skull.Object = Class.create({
-
-});
+// Make sure we have Prototype included
+if (typeof Prototype === 'undefined') {
+  throw new Error("Skull.js requires Prototype > 1.6.0");
+}
 
 /**
   A collection of class methods that are available for all classes in Skull.
@@ -76,6 +76,13 @@ Skull.ClassMixin = (function() {
 
   return this;
 })();
+
+/**
+  The core object for all objects to inherit from
+*/
+Skull.Object = Class.create({
+
+});
 
 /**
   Apply the ClassMixin to Skull.Object
