@@ -17,7 +17,14 @@ module.exports = function(grunt) {
         stripBanners: true
       },
       dist: {
-        src: ['src/**/*.js'],
+        src: [
+          'src/system/*.js',
+          'src/application/*.js',
+          'src/router/*.js',
+          'src/controller/*.js',
+          'src/view/*.js',
+          'src/model/*.js'
+        ],
         dest: 'dist/skull.js'
       }
     },
