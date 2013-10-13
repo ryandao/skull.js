@@ -1,0 +1,15 @@
+{
+  "name": "skull.js",
+  "version": "0.0.1",
+  "description": "Just another MVC framework",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ryandao/skull.js"
+  },
+  "devDependencies": {
+    "grunt": "~0.4.0",
+    "grunt-contrib": "~0.7.0"
+  },
+  "author": "Ryan Dao",
+  "license": "BSD"
+}
