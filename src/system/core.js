@@ -46,14 +46,28 @@ Skull.ClassMixin = (function() {
       All instances of the subclass have access to the custom arguments.
     */
     extend: function() {
-      var subclass = Class.create(this, arguments[0]);
+      var properties = arguments[0] || {};
+      var subclass = Class.create(this, properties);
       this.ClassMixin.apply(subclass);
 
       return subclass;
     },
 
     /**
-      Create a new "instance" of the current class
+      Create a new "instance" of the current class.
+      All the custom arguments are added to the instance object itself.
+      For example:
+
+        var Person = Skull.Object.extend({
+          name: "Ryan"
+        });
+        var person = Person.create();
+        person.hasOwnProperty('name'); // false
+
+        var person2 = Person.create({
+          name: "Ryan"
+        });
+        person2.hasOwnProperty('name'); // true
     */
     create: function() {
       var instance = new this();
@@ -81,10 +95,33 @@ Skull.ClassMixin = (function() {
   The core object for all objects to inherit from
 */
 Skull.Object = Class.create({
+  /**
+    All objects should use this method for getting their attributes.
+    So instead of `person.name`, use `person.get('name')`.
+    Classes and instances can customize getter depending on their needs.
+  */
+  get: function(attr) {
+    return this[attr];
+  },
 
+  /**
+    All objects should use this method for setting their attributes.
+    So instead of `person.name = "Ryan"`, do `person.set('name', 'Ryan')`.
+    Setter triggers the respective change events for others to listen to.
+  */
+  set: function(key, val) {
+    if (key == null) {
+      return this;
+    }
+
+    // TODO: Trigger events for changed attributes
+    this[key] = val;
+    return this;
+  }
 });
 
 /**
   Apply the ClassMixin to Skull.Object
 */
 Skull.ClassMixin.apply(Skull.Object);
+
