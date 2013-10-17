@@ -121,21 +121,51 @@ Skull.Events = {
   },
 
   sendEvent: function(eventName, params) {
+    var listeners;
+
     if (! this._listeners) { return this; }
-    var listeners = this._listeners[eventName];
-    for (var i = 0; i < listeners.length; i++) {
-      var callback = listeners[i];
-      // TODO: Set the target for the event
-      callback.apply(null, params);
+    if (listeners = this._listeners[eventName]) {
+      for (var i = 0; i < listeners.length; i++) {
+        var callback = listeners[i];
+        // TODO: Set the target for the event
+        callback.apply(null, params);
+      }
     }
     return this;
   }
 }
 
 /**
-  The core object for all objects to inherit from
+  A mixin that makes use of Skull.Events to enable property observing functionality.
+  This has to be added to objects together with Skull.Events for it to work.
 */
-Skull.Object = Class.create(Skull.Events, {
+Skull.Observable = {
+  _eventName: function(propertyName) {
+    return propertyName + ":changed";
+  },
+
+  addObserver: function(propertyName, callback) {
+    if (! this.addListener) {
+      throw new Error("Skull.Observable.addObserver cannot be used without Skull.Events.addListener");
+    }
+    return this.addListener(this._eventName(propertyName), callback);
+  },
+
+  removeObserver: function(propertyName, callback) {
+    if (! this.removeListener) {
+      throw new Error("Skull.Observable.removeObserver cannot be used without Skull.Events.removeListener");
+    }
+    return this.removeListener(this._eventName(propertyName), callback);
+  },
+
+  // Fire the events subscribed to the change in the given property
+  propertyDidChange: function(propertyName) {
+    if (! this.sendEvent) {
+      throw new Error("Skull.Observable.propertyDidChange cannot be used without Skull.Events.sendEvent");
+    }
+    return this.sendEvent(this._eventName(propertyName));
+  },
+
   /**
     All objects should use this method for getting their attributes.
     So instead of `person.name`, use `person.get('name')`.
@@ -155,11 +185,20 @@ Skull.Object = Class.create(Skull.Events, {
       return this;
     }
 
-    // TODO: Trigger events for changed attributes
-    this[key] = val;
-    return this;
+    var current = this[key];
+    if (current !== val) {
+      this[key] = val;
+      return this.propertyDidChange(key);
+    } else {
+      return this;
+    }
   }
-});
+}
+
+/**
+  The core object for all objects to inherit from
+*/
+Skull.Object = Class.create(Skull.Events, Skull.Observable);
 
 /**
   Apply the ClassMixin to Skull.Object
