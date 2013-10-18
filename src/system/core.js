@@ -50,6 +50,10 @@ Skull.ClassMixin = (function() {
       var subclass = Class.create(this, properties);
       this.ClassMixin.apply(subclass);
 
+      // Take care of observing functions
+      var observing_hash = getObservingFunctions(properties);
+      updateObservers(subclass.prototype, observing_hash);
+
       return subclass;
     },
 
@@ -71,9 +75,12 @@ Skull.ClassMixin = (function() {
     */
     create: function() {
       var instance = new this();
-      if (arguments.length > 0 && typeof arguments === 'object') {
-        Object.extend(instance, arguments[0]);
-      }
+      var properties = arguments[0] || {};
+      Object.extend(instance, properties);
+
+      // Take care of observing functions
+      var observing_hash = getObservingFunctions(properties);
+      updateObservers(instance, observing_hash);
 
       return instance;
     }
@@ -90,6 +97,38 @@ Skull.ClassMixin = (function() {
 
   return this;
 })();
+
+/**
+  Helper method to get the observing functions from a hash of
+  mixin properties passed to Skull.Object.create().
+*/
+function getObservingFunctions(params) {
+  var result = {}, observes_properties;
+  for (var key in params) {
+    if (! params.hasOwnProperty(key)) { continue; }
+
+    if (observes_properties = params[key].__observes_properties__) {
+      for (var i = 0; i < observes_properties.length; i++) {
+        result[observes_properties[i]] = params[key];
+      }
+    }
+  }
+  return result;
+}
+
+/**
+  Update the observers of an object.
+  `obj` is the object needs to be updated.
+  `observing_hash` is an object containing a property name as key and
+  callback as value.
+*/
+function updateObservers(obj, observing_hash) {
+  for (var key in observing_hash) {
+    if (! observing_hash.hasOwnProperty(key)) { continue; }
+
+    obj.addObserver(key, observing_hash[key]);
+  }
+}
 
 /**
   A mixin that can be added to an object to enable event functionality.
@@ -205,3 +244,21 @@ Skull.Object = Class.create(Skull.Events, Skull.Observable);
 */
 Skull.ClassMixin.apply(Skull.Object);
 
+/**
+  Add the `observes` extension to Function.prototype.
+  The extension can be used to add an observer to the
+  changes of certain properties of an object during declaration.
+  For example:
+
+    var obj = Skull.Object.create({
+      testObserver: function() {
+        // Do something
+      }.observes('test')
+    })
+*/
+Function.prototype.observes = function() {
+  if (arguments.length > 0) {
+    this.__observes_properties__ = arguments;
+  }
+  return this;
+}
