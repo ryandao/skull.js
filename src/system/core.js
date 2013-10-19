@@ -21,9 +21,59 @@ Skull.P = function() {
   return this;
 }
 
-// Make sure we have Prototype included
-if (typeof Prototype === 'undefined') {
-  throw new Error("Skull.js requires Prototype > 1.6.0");
+// Make sure we have the dependencies included
+if (typeof jQuery === 'undefined') {
+  throw new Error("Skull.js requires jQuery >= 1.9.0");
+}
+
+if (typeof Handlebars === 'undefined') {
+  throw new Error("Skull.js requires Handlebars >= 1.0.0");
+}
+
+/**
+  Helper function for making a "class". Return the constructor
+  function for instances of the class. Calling the constructor
+  function will invoke the `initialize` method if provided.
+
+  Optional parameters can be a superclass for the class to inherit from
+  and custom properties that will be mixed in as instance methods.
+
+  TODO: Implement `super` functionality
+*/
+function MakeClass() {
+  var subclass = function() { };
+  var parent = null, properties = Array.prototype.slice.call(arguments);
+
+  if ($.isFunction(properties[0])) {
+    parent = properties.shift();
+  }
+
+  function klass() {
+    this.initialize.apply(this, arguments);
+  }
+
+  klass.superclass = parent;
+  klass.subclasses = [];
+
+  if (parent) {
+    subclass.prototype = parent.prototype;
+    klass.prototype = new subclass;
+    parent.subclasses.push(klass);
+  }
+
+  // Add the custom properties to the class
+  for (var i = 0; i < properties.length; i++) {
+    $.each(properties[i], function(property, value){
+      klass.prototype[property] = value;
+    })
+  }
+
+  if (!klass.prototype.initialize) {
+    klass.prototype.initialize = function() {};
+  }
+
+  klass.prototype.constructor = klass;
+  return klass;
 }
 
 /**
@@ -47,7 +97,7 @@ Skull.ClassMixin = (function() {
     */
     extend: function() {
       var properties = arguments[0] || {};
-      var subclass = Class.create(this, properties);
+      var subclass = MakeClass(this, properties);
       this.ClassMixin.apply(subclass);
 
       // Take care of observing functions
@@ -76,7 +126,7 @@ Skull.ClassMixin = (function() {
     create: function() {
       var instance = new this();
       var properties = arguments[0] || {};
-      Object.extend(instance, properties);
+      $.extend(instance, properties);
 
       // Take care of observing functions
       var observing_hash = getObservingFunctions(properties);
@@ -91,7 +141,7 @@ Skull.ClassMixin = (function() {
     Keep a reference to the mixin in the class for later use.
   */
   this.apply = function(aClass) {
-    Object.extend(aClass, this.classMethods);
+    $.extend(aClass, this.classMethods);
     aClass.ClassMixin = this;
   };
 
@@ -237,7 +287,7 @@ Skull.Observable = {
 /**
   The core object for all objects to inherit from
 */
-Skull.Object = Class.create(Skull.Events, Skull.Observable);
+Skull.Object = MakeClass(Skull.Events, Skull.Observable);
 
 /**
   Apply the ClassMixin to Skull.Object
