@@ -32,8 +32,7 @@ if (typeof Handlebars === 'undefined') {
 
 /**
   Helper function for making a "class". Return the constructor
-  function for instances of the class. Calling the constructor
-  function will invoke the `initialize` method if provided.
+  function for all the instances of the class.
 
   Optional parameters can be a superclass for the class to inherit from
   and custom properties that will be mixed in as instance methods.
@@ -42,14 +41,11 @@ if (typeof Handlebars === 'undefined') {
 */
 function MakeClass() {
   var subclass = function() { };
+  var klass = function() { }
   var parent = null, properties = Array.prototype.slice.call(arguments);
 
   if ($.isFunction(properties[0])) {
     parent = properties.shift();
-  }
-
-  function klass() {
-    this.initialize.apply(this, arguments);
   }
 
   klass.superclass = parent;
@@ -68,7 +64,7 @@ function MakeClass() {
     })
   }
 
-  if (!klass.prototype.initialize) {
+  if (! klass.prototype.initialize) {
     klass.prototype.initialize = function() {};
   }
 
@@ -127,6 +123,9 @@ Skull.ClassMixin = (function() {
       var instance = new this();
       var properties = arguments[0] || {};
       $.extend(instance, properties);
+
+      // Call the initialize method if any
+      instance.initialize.apply(instance);
 
       // Take care of observing functions
       var observing_hash = getObservingFunctions(properties);
@@ -188,8 +187,8 @@ function updateObservers(obj, observing_hash) {
 Skull.Events = {
   addListener: function(name, callback) {
     if (! callback) { return this; }
-    this._listeners || (this._listeners = {});
-    var listeners = this._listeners[name] || (this._listeners[name] = []);
+    this.__listeners__ || (this.__listeners__ = {});
+    var listeners = this.__listeners__[name] || (this.__listeners__[name] = []);
     listeners.push(callback);
     return this;
   },
@@ -197,12 +196,12 @@ Skull.Events = {
   removeListener: function(name, callback) {
     var listeners, retain;
 
-    if (! this._listeners) { return this; }
-    if (listeners = this._listeners[name]) {
-      this._listeners = retain = [];
+    if (! this.__listeners__) { return this; }
+    if (listeners = this.__listeners__[name]) {
+      this.__listeners__ = retain = [];
       for (var i = 0; i < listeners.length; i++) {
-        if (this._listeners[i] !== callback) {
-          retain.push(this._listeners[i]);
+        if (this.__listeners__[i] !== callback) {
+          retain.push(this.__listeners__[i]);
         }
       }
     }
@@ -212,12 +211,12 @@ Skull.Events = {
   sendEvent: function(eventName, params) {
     var listeners;
 
-    if (! this._listeners) { return this; }
-    if (listeners = this._listeners[eventName]) {
+    if (! this.__listeners__) { return this; }
+    if (listeners = this.__listeners__[eventName]) {
       for (var i = 0; i < listeners.length; i++) {
         var callback = listeners[i];
         // TODO: Set the target for the event
-        callback.apply(null, params);
+        callback.apply(this, params);
       }
     }
     return this;
@@ -233,6 +232,10 @@ Skull.Observable = {
     return propertyName + ":changed";
   },
 
+  /**
+    Add an observer that observes changes of a particular property.
+    Use `all` for propertyName if you want to observe all the property changes.
+  */
   addObserver: function(propertyName, callback) {
     if (! this.addListener) {
       throw new Error("Skull.Observable.addObserver cannot be used without Skull.Events.addListener");
@@ -247,11 +250,17 @@ Skull.Observable = {
     return this.removeListener(this._eventName(propertyName), callback);
   },
 
-  // Fire the events subscribed to the change in the given property
+  /**
+    Fire the events subscribed to the change in the given property.
+    Also fire the `all:changed` event for any observer that observes
+    all the property changes.
+  */
   propertyDidChange: function(propertyName) {
     if (! this.sendEvent) {
       throw new Error("Skull.Observable.propertyDidChange cannot be used without Skull.Events.sendEvent");
     }
+
+    this.sendEvent(this._eventName('all'));
     return this.sendEvent(this._eventName(propertyName));
   },
 
