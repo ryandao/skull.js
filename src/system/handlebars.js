@@ -1,5 +1,5 @@
 Skull.ActionHelper = {
-  actions: [],
+  actions: {},
 
   registerAction: (function(actionName, options) {
     var idCounter = 0;
@@ -23,11 +23,30 @@ Skull.ActionHelper = {
             throw "Action " + actionName + " does not exist in the target " + target.toString();
           }
 
+          options.params.unshift(event);
           return target[actionName].apply(target, options.params);
         }
       };
 
       return actionId;
+    }
+  })()
+};
+
+Skull.BindingHelper = {
+  bindings: {},
+
+  registerBinding: (function(propertyPath) {
+    var idCounter = 0;
+
+    return function(propertyPath) {
+      var bindingId = (++idCounter).toString();
+
+      Skull.BindingHelper.bindings[bindingId] = {
+        path: propertyPath
+      };
+
+      return bindingId;
     }
   })()
 }
@@ -67,3 +86,24 @@ Handlebars.registerHelper('action', function(actionName) {
   var actionId = Skull.ActionHelper.registerAction(actionName, action);
   return new Handlebars.SafeString('data-skull-action="' + actionId + '"');
 });
+
+Handlebars.registerHelper('bind', function(propertyPath, options) {
+  if (arguments.length > 2) {
+    throw new Error("You cannot pass more than one arguments to the bind helper");
+  }
+
+  var bindingId = Skull.BindingHelper.registerBinding(propertyPath);
+  return new Handlebars.SafeString("<span data-skull-binding=" + bindingId + ">" +
+                                      getPath(this, propertyPath) +
+                                   "</span>");
+});
+
+function getPath(root, path) {
+  var parts = path.split('.');
+
+  for (var i = 0; i < parts.length; i++) {
+    root = root[parts[i]];
+  }
+
+  return root;
+}
