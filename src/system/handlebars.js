@@ -36,13 +36,14 @@ Skull.ActionHelper = {
 Skull.BindingHelper = {
   bindings: {},
 
-  registerBinding: (function(propertyPath) {
+  registerBinding: (function(root, propertyPath) {
     var idCounter = 0;
 
-    return function(propertyPath) {
+    return function(root, propertyPath) {
       var bindingId = (++idCounter).toString();
 
       Skull.BindingHelper.bindings[bindingId] = {
+        root: root,
         path: propertyPath
       };
 
@@ -145,10 +146,21 @@ Handlebars.registerHelper('bind', function(propertyPath, options) {
     throw new Error("You cannot pass more than one arguments to the bind helper");
   }
 
-  var bindingId = Skull.BindingHelper.registerBinding(propertyPath);
+  var bindingId = Skull.BindingHelper.registerBinding(this, propertyPath);
   return new Handlebars.SafeString("<span data-skull-binding=" + bindingId + ">" +
                                       getPath(this, propertyPath) +
                                    "</span>");
+});
+
+Handlebars.registerHelper('each', function(propertyPath, options) {
+  var items = getPath(this, propertyPath);
+  var out = "";
+
+  for (var i = 0; i < items.length; i++) {
+    out += options.fn(items[i]);
+  }
+
+  return out;
 });
 
 function getPath(root, path) {
@@ -159,4 +171,4 @@ function getPath(root, path) {
   }
 
   return root;
-}
+};
