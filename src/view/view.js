@@ -71,24 +71,19 @@ Skull.View = Skull.Object.extend({
       var el = $(this),
           bindingId = el.attr('data-skull-binding'),
           propertyPath = Skull.BindingHelper.bindings[bindingId].path,
+          root = Skull.BindingHelper.bindings[bindingId].root,
           parts = propertyPath.split('.'),
-          root = parts[0],
-          propertyName = parts[1];
+          propertyName = parts[parts.length - 1];
 
-      switch(root) {
-        case 'view':
-          root = view;
-          break;
-        case 'controller':
-          root = controller;
-          break;
-        default:
-          throw new Error("Path root of template binding has to be either view or controller");
+      for (var i = 0; i < parts.length - 1; i++) {
+        root = root[parts[i]];
       }
 
-      root.addObserver(propertyName, function() {
-        el.html(this.get(propertyName));
-      });
+      if (typeof root.addObserver !== 'undefined') {
+        root.addObserver(propertyName, function() {
+          el.html(this.get(propertyName));
+        });
+      }
     });
   },
 });
