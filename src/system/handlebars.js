@@ -49,10 +49,42 @@ Skull.BindingHelper = {
       return bindingId;
     }
   })()
-}
+};
 
 /**
-  Inspired by Ember's {{action}} helper.
+  The `{{action}}` helper registers an HTML element within a template for DOM
+  event handling and forwards that interaction to the specified target. The
+  target can only be the view, the view's controller, or a custom target passed
+  in via the `target` option.
+
+  You can specify the corresponding DOM event via the `on` option. The default
+  event is `click`. For example given the Handlebars template:
+
+    <script type="text/x-handlebars" id="person">
+      <span>{{view.name}}</span>
+      <input {{action "changeName" on="change"}} type="text">
+    </script>
+
+  And a view:
+
+    var AView = Skull.View.extend({
+      templateId: 'person',
+      changeName: function(event) {
+        var value = event.currentTarget.value;
+        this.set('name', value);
+      }
+    });
+
+    var aView = AView.create({name: 'Ryan'});
+
+  It will result in the following HTML:
+
+    <span>Ryan</span>
+    <input data-skull-action=1 type='text'>
+
+  Any changes inside the text input calls the `changeName` method inside the view
+  and update `name` accordingly. You can also bind the display of `name` to the
+  associating view's property using the {{bind}} helper.
 */
 Handlebars.registerHelper('action', function(actionName) {
   var options = arguments[arguments.length - 1],
@@ -87,6 +119,27 @@ Handlebars.registerHelper('action', function(actionName) {
   return new Handlebars.SafeString('data-skull-action="' + actionId + '"');
 });
 
+/**
+  The `bind` helper can be used to display a value, then update that value if it
+  changes. For example, if you wanted to print the `name` property of
+  `person` using the following template:
+
+    <script type="text/x-handlebars" id="person">
+      {{bind view.name}}
+    </script>
+
+  With the view:
+
+    var AView = Skull.View.extend({ templateId: 'person' })l
+    var aView = AView.create({name: 'Ryan'})
+
+  It will result in the following HTML:
+
+    <span data-skull-binding=1>Ryan</span>
+
+  Whenever `name` is updated using `aView.set('name', 'newValue')`, the
+  display of `view.name` will also be updated automatically.
+*/
 Handlebars.registerHelper('bind', function(propertyPath, options) {
   if (arguments.length > 2) {
     throw new Error("You cannot pass more than one arguments to the bind helper");
