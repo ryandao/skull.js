@@ -4,17 +4,17 @@ Skull.View = Skull.Object.extend({
 
   initialize: function() {
     this.__scriptEl__ = $('#' + this.get('templateId'));
+    this.__template__ = Handlebars.compile(this.__scriptEl__.html());
     this.render();
     return this;
   },
 
   render: function() {
-    var source = this.__scriptEl__.html();
-    var template = Handlebars.compile(source);
-    var html = template({
+    var html = this.__template__({
       view: this,
       controller: this.get('controller')
     });
+
     var el = $(document.createElement('div')).append(html);
 
     if (this.$) {
@@ -60,8 +60,7 @@ Skull.View = Skull.Object.extend({
   },
 
   /**
-    Set up the data binding specify using the {{bind}} helper.
-    The bound attribute needs be belong to either the view or the controller.
+    Set up the data binding specified using the {{bind}} helper.
   */
   setupBindings: function() {
     var view = this;
