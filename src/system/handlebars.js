@@ -156,9 +156,9 @@ Handlebars.registerHelper('each', function(propertyPath, options) {
   var items = getPath(this, propertyPath);
   var out = "";
 
-  for (var i = 0; i < items.length; i++) {
-    out += options.fn(items[i]);
-  }
+  items.forEach(function(item) {
+    out += options.fn(item);
+  });
 
   return out;
 });

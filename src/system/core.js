@@ -31,13 +31,13 @@ if (typeof Handlebars === 'undefined') {
 }
 
 /**
+  Influenced by Prototype.
+
   Helper function for making a "class". Return the constructor
   function for all the instances of the class.
 
   Optional parameters can be a superclass for the class to inherit from
   and custom properties that will be mixed in as instance methods.
-
-  TODO: Implement `super` functionality
 */
 function MakeClass() {
   var subclass = function() { };
@@ -77,7 +77,7 @@ function MakeClass() {
             // remove it when we're done executing
             var ret = fn.apply(this, arguments);
             this._super = tmp;
-            if (typeof this._super == 'undefined') {
+            if (typeof this._super === 'undefined') {
               delete this._super;
             }
 
