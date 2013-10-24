@@ -41,35 +41,61 @@ if (typeof Handlebars === 'undefined') {
 */
 function MakeClass() {
   var subclass = function() { };
-  var klass = function() { }
+  var Class = function() { }
   var parent = null, properties = Array.prototype.slice.call(arguments);
 
   if ($.isFunction(properties[0])) {
     parent = properties.shift();
   }
 
-  klass.superclass = parent;
-  klass.subclasses = [];
+  Class.superclass = parent;
+  Class.subclasses = [];
 
   if (parent) {
     subclass.prototype = parent.prototype;
-    klass.prototype = new subclass;
-    parent.subclasses.push(klass);
+    Class.prototype = new subclass;
+    parent.subclasses.push(Class);
   }
 
   // Add the custom properties to the class
   for (var i = 0; i < properties.length; i++) {
     $.each(properties[i], function(property, value){
-      klass.prototype[property] = value;
+      Class.prototype[property] = value;
+
+      // If a method of the child class overrides the super class' method,
+      // make the super class' method available via `this._super()`
+      if (parent && $.isFunction(parent.prototype[property]) && $.isFunction(value)) {
+        Class.prototype[property] = (function(property, fn) {
+          return function() {
+            var tmp = this._super;
+
+            // Add a new ._super() method that is the same method
+            // but on the super-class
+            this._super = parent.prototype[property];
+
+            // The method only need to be bound temporarily, so we
+            // remove it when we're done executing
+            var ret = fn.apply(this, arguments);
+            this._super = tmp;
+            if (typeof this._super == 'undefined') {
+              delete this._super;
+            }
+
+            return ret;
+          }
+        })(property, value);
+      } else {
+        Class.prototype[property] = value;
+      }
     })
   }
 
-  if (! klass.prototype.initialize) {
-    klass.prototype.initialize = function() {};
+  if (! Class.prototype.initialize) {
+    Class.prototype.initialize = Skull.P;
   }
 
-  klass.prototype.constructor = klass;
-  return klass;
+  Class.prototype.constructor = Class;
+  return Class;
 }
 
 /**
