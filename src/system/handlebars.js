@@ -1,56 +1,60 @@
-Skull.ActionHelper = {
-  actions: {},
+Skull.ActionHelper = (function() {
+  var actions = {};
+  var actionId = 0;
 
-  registerAction: (function(actionName, options) {
-    var idCounter = 0;
+  var registerAction = function(actionName, options) {
+    var handler = function(event) {
+      event.preventDefault();
 
-    return function(actionName, options) {
-      var actionId = (++idCounter).toString();
+      if (options.bubbles === false) {
+        event.stopPropagation();
+      }
 
-      Skull.ActionHelper.actions[actionId] = {
-        eventName: options.eventName,
-        handler: function(event) {
-          event.preventDefault();
+      var view = options.view,
+          target = options.target;
 
-          if (options.bubbles === false) {
-            event.stopPropagation();
-          }
+      if (typeof target[actionName] === 'undefined') {
+        throw "Action " + actionName + " does not exist in the target " + target.toString();
+      }
 
-          var view = options.view,
-              target = options.target;
+      options.params.unshift(event);
+      return target[actionName].apply(target, options.params);
+    };
 
-          if (typeof target[actionName] === 'undefined') {
-            throw "Action " + actionName + " does not exist in the target " + target.toString();
-          }
+    actions[actionId] = {
+      eventName: options.eventName,
+      handler: handler
+    };
 
-          options.params.unshift(event);
-          return target[actionName].apply(target, options.params);
-        }
-      };
+    return actionId;
+  };
 
-      return actionId;
-    }
-  })()
-};
+  return {
+    actions: actions,
+    registerAction: registerAction
+  };
+})();
 
-Skull.BindingHelper = {
-  bindings: {},
+Skull.BindingHelper = (function() {
+  var bindings = {};
+  var idCounter = 0;
 
-  registerBinding: (function(root, propertyPath) {
-    var idCounter = 0;
+  var registerBinding = function(root, propertyPath) {
+    var bindingId = (++idCounter).toString();
 
-    return function(root, propertyPath) {
-      var bindingId = (++idCounter).toString();
+    Skull.BindingHelper.bindings[bindingId] = {
+      root: root,
+      path: propertyPath
+    };
 
-      Skull.BindingHelper.bindings[bindingId] = {
-        root: root,
-        path: propertyPath
-      };
+    return bindingId;
+  };
 
-      return bindingId;
-    }
-  })()
-};
+  return {
+    bindings: bindings,
+    registerBinding: registerBinding
+  };
+})();
 
 /**
   The `{{action}}` helper registers an HTML element within a template for DOM
