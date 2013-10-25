@@ -26,6 +26,7 @@ Skull.View = Skull.Object.extend({
     this.$ = el;
     this.setupHandlers();
     this.setupBindings();
+    this.setupCollections();
 
     return this;
   },
@@ -85,4 +86,22 @@ Skull.View = Skull.Object.extend({
       }
     });
   },
+
+  setupCollections: function() {
+    var view = this;
+    var controller = view.controller;
+
+    $('[data-skull-collection]', this.$).each(function() {
+      var el = $(this),
+          collectionId = el.attr('data-skull-collection'),
+          propertyPath = Skull.CollectionHelper.collections[collectionId].path,
+          root = Skull.CollectionHelper.collections[collectionId].root,
+          fn = Skull.CollectionHelper.collections[collectionId].fn,
+          items = Handlebars.getPath(root, propertyPath);
+
+      items.forEach(function(item) {
+        el.append(fn(item));
+      });
+    });
+  }
 });

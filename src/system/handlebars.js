@@ -42,7 +42,7 @@ Skull.BindingHelper = (function() {
   var registerBinding = function(root, propertyPath) {
     var bindingId = (++idCounter).toString();
 
-    Skull.BindingHelper.bindings[bindingId] = {
+    bindings[bindingId] = {
       root: root,
       path: propertyPath
     };
@@ -53,6 +53,28 @@ Skull.BindingHelper = (function() {
   return {
     bindings: bindings,
     registerBinding: registerBinding
+  };
+})();
+
+Skull.CollectionHelper = (function() {
+  var collections = {};
+  var idCounter = 0;
+
+  var registerCollection = function(root, propertyPath, fn) {
+    var collectionId = (++idCounter).toString();
+
+    collections[collectionId] = {
+      root: root,
+      path: propertyPath,
+      fn: fn
+    }
+
+    return collectionId;
+  };
+
+  return {
+    collections: collections,
+    registerCollection: registerCollection
   };
 })();
 
@@ -152,22 +174,18 @@ Handlebars.registerHelper('bind', function(propertyPath, options) {
 
   var bindingId = Skull.BindingHelper.registerBinding(this, propertyPath);
   return new Handlebars.SafeString("<span data-skull-binding=" + bindingId + ">" +
-                                      getPath(this, propertyPath) +
+                                      Handlebars.getPath(this, propertyPath) +
                                    "</span>");
 });
 
 Handlebars.registerHelper('each', function(propertyPath, options) {
-  var items = getPath(this, propertyPath);
-  var out = "";
-
-  items.forEach(function(item) {
-    out += options.fn(item);
-  });
-
-  return out;
+  // To support ArrayProxy and RecordArray, only render a wrapper
+  // and let the view fill the data in later.
+  var collectionId = Skull.CollectionHelper.registerCollection(this, propertyPath, options.fn);
+  return new Handlebars.SafeString("<div data-skull-collection=" + collectionId + "></div>");
 });
 
-function getPath(root, path) {
+Handlebars.getPath = function(root, path) {
   var parts = path.split('.');
 
   for (var i = 0; i < parts.length; i++) {
