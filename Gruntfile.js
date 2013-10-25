@@ -18,7 +18,9 @@ module.exports = function(grunt) {
       },
       dist: {
         src: [
-          'src/system/*.js',
+          'src/system/core.js',
+          'src/system/array.js',
+          'src/system/handlebars.js',
           'src/application/*.js',
           'src/router/*.js',
           'src/controller/*.js',
