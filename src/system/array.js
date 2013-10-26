@@ -1,11 +1,7 @@
 Skull.ArrayProxy = Skull.Object.extend({
+  content: Skull.P,
+
   forEach: function(callback) {
-    this.content.forEach(function(entry) {
-      if (entry.then) {
-        entry.then(callback);
-      } else {
-        callback(entry);
-      }
-    })
+    return this.content.forEach(callback);
   }
 });

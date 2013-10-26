@@ -3,21 +3,26 @@ Skull.Model = Skull.Object.extend({
 });
 
 Skull.RecordArray = Skull.ArrayProxy.extend({
+  isLoaded: false,
+
   initialize: function() {
     var _this = this;
 
     this.promise.done(function(data) {
       _this.set('content', data);
+      _this.set('isLoaded', true);
     });
   },
 
   forEach: function(callback) {
-    if (typeof this.content === 'undefined') {
-      this.addObserver('content', function() {
-        this.content.forEach(callback);
-      });
+    if (this.isLoaded) {
+      this._super(callback);
     } else {
-      this.content.forEach(callback);
+      this.addObserver('isLoaded', function() {
+        if (this.isLoaded) {
+          this.content.forEach(callback);
+        }
+      });
     }
   }
 });
