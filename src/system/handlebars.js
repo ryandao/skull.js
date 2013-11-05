@@ -174,7 +174,7 @@ Handlebars.registerHelper('bind', function(propertyPath, options) {
 
   var bindingId = Skull.BindingHelper.registerBinding(this, propertyPath);
   return new Handlebars.SafeString("<span data-skull-binding=" + bindingId + ">" +
-                                      Handlebars.getPath(this, propertyPath) +
+                                      Skull.getPath(this, propertyPath) +
                                    "</span>");
 });
 
@@ -185,7 +185,7 @@ Handlebars.registerHelper('each', function(propertyPath, options) {
   return new Handlebars.SafeString("<div data-skull-collection=" + collectionId + "></div>");
 });
 
-Handlebars.getPath = function(root, path) {
+Skull.getPath = function(root, path) {
   var parts = path.split('.');
 
   for (var i = 0; i < parts.length; i++) {
@@ -194,3 +194,13 @@ Handlebars.getPath = function(root, path) {
 
   return root;
 };
+
+/**
+ * Get the property name, which is the last component of a given path.
+ * For example, if the path is `view.controller.person`, the property
+ * name is `person`.
+ */
+Skull.getPropertyName = function(path) {
+  var parts = path.split('.');
+  return parts[parts.length - 1];
+}
