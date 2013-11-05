@@ -1,9 +1,7 @@
 Skull.Router = Skull.Object.extend({
-	uris: {};
+  uris: {},
 
-	define: function(){
-				$.extend(uris, routes);
-	}
-
-
+  define: function(){
+    $.extend(uris, routes);
+  }
 });
