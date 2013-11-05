@@ -26,5 +26,14 @@ Skull.Store = Skull.Object.extend({
         url: modelClass.prototype.url
       })
     });
+  },
+
+  findQuery: function(modelClass, query) {
+    return Skull.RecordArray.create({
+      promise: $.ajax({
+        url: modelClass.prototype.url,
+        data: query
+      })
+    });
   }
 });
