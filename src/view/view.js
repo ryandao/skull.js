@@ -97,11 +97,32 @@ Skull.View = Skull.Object.extend({
           propertyPath = Skull.CollectionHelper.collections[collectionId].path,
           root = Skull.CollectionHelper.collections[collectionId].root,
           fn = Skull.CollectionHelper.collections[collectionId].fn,
-          items = Handlebars.getPath(root, propertyPath);
+          parts = propertyPath.split('.'),
+          propertyName = parts[parts.length - 1],
+          items = Skull.getPath(root, propertyPath);
 
       items.forEach(function(item) {
         el.append(fn(item));
       });
+
+      // Add an observer for the collection
+      for (var i = 0; i < parts.length - 1; i++) {
+        root = root[parts[i]];
+      }
+
+      if (typeof root.addObserver !== 'undefined') {
+        root.addObserver(propertyName, function() {
+          var newEl = $(document.createElement('div'));
+          var newItems = this.get(propertyName);
+
+          newItems.forEach(function(item) {
+            newEl.append(fn(item));
+          });
+
+          el.replaceWith(newEl);
+          el = newEl;
+        });
+      }
     });
   }
 });
