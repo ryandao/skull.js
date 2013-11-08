@@ -3,8 +3,10 @@ Skull.View = Skull.Object.extend({
   rootEl: 'body',
 
   initialize: function() {
+    this.rootEl = (this.rootEl instanceof jQuery) ? this.rootEl : $(this.rootEl);
     this.__scriptEl__ = $('#' + this.get('templateId'));
     this.__template__ = Handlebars.compile(this.__scriptEl__.html());
+
     this.render();
     return this;
   },
@@ -18,9 +20,10 @@ Skull.View = Skull.Object.extend({
     var el = $(document.createElement('div')).append(html);
 
     if (this.$) {
+      // Re-rendering case
       this.$.replaceWith(el);
     } else {
-      this.__scriptEl__.replaceWith(el);
+      this.rootEl.append(el);
     }
 
     this.$ = el;
