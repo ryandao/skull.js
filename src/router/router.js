@@ -18,7 +18,6 @@ Skull.History = Skull.Object.extend({
 
     this.usePushState = this.locationType === 'history';
     this.useHashChange = this.locationType === 'hash';
-    this.start();
   },
 
   // Start the History operations.
@@ -34,6 +33,8 @@ Skull.History = Skull.Object.extend({
         _this.checkUrl();
       }
     }
+
+    return this.loadUrl(this.root);
   },
 
   getFragment: function() {
