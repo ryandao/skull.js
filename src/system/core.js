@@ -219,7 +219,7 @@ Skull.Events = {
 
     listeners.push({
       callback: callback,
-      target: target || this
+      target: target
     });
 
     return this;
@@ -247,7 +247,7 @@ Skull.Events = {
     if (listeners = this.__listeners__[eventName]) {
       for (var i = 0; i < listeners.length; i++) {
         var callback = listeners[i].callback;
-        callback.apply(listeners[i].target, params);
+        callback.apply(listeners[i].target || this, params);
       }
     }
     return this;
