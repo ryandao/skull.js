@@ -1,9 +1,11 @@
 /**
  * History API for SkullJS.
- * Currently it only supports `pushState`.
- * TODO: Add `onHashChange` API if `pushState` is not available.
+ * It uses either the `hashChange` or `pushState` API.
+ * Specify the type of location API to be used via the `location` option.
+ * By default it uses the `hashChange` API.
  */
 Skull.History = Skull.Object.extend({
+  locationType: 'hash',
   root: '/',
   fragment: '',
 
@@ -14,25 +16,28 @@ Skull.History = Skull.Object.extend({
       this.history = window.history;
     }
 
+    this.usePushState = this.locationType === 'history';
+    this.useHashChange = this.locationType === 'hash';
     this.start();
   },
 
   // Start the History operations.
   start: function() {
-    // Make sure pushState is available
-    if (! this.history.pushState) {
-      throw new Error("Skull History currently supports only pushState. Make sure your browser has pushState enabled");
-    }
-
     var _this = this;
-    $(window).on('popstate', function() {
-      _this.checkUrl();
-    });
+
+    if (this.usePushState) {
+      window.onpopstate = function() {
+        _this.checkUrl();
+      };
+    } else if (this.useHashChange) {
+      window.onhashchange = function() {
+        _this.checkUrl();
+      }
+    }
   },
 
   getFragment: function() {
     var fragment = this.location.pathname;
-
     return this.normalizeFragment(fragment);
   },
 
@@ -71,7 +76,12 @@ Skull.History = Skull.Object.extend({
   navigate: function(fragment) {
     var url = this.root + this.normalizeFragment(fragment);
 
-    this.history.pushState({}, document.title, url);
+    if (this.usePushState) {
+      this.history.pushState({}, document.title, url);
+    } else if (this.useHashChange) {
+      this.location.hash = '#' + this.normalizeFragment(fragment);
+    }
+
     this.loadUrl(fragment);
   }
 });
