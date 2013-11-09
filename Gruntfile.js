@@ -21,8 +21,8 @@ module.exports = function(grunt) {
           'src/system/core.js',
           'src/system/array.js',
           'src/system/handlebars.js',
-          'src/application/*.js',
           'src/router/*.js',
+          'src/application/*.js',
           'src/controller/*.js',
           'src/view/*.js',
           'src/model/*.js'

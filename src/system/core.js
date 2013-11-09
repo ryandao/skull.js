@@ -211,11 +211,17 @@ function updateObservers(obj, observing_hash) {
   time you don't need to call this module specifically.
 */
 Skull.Events = {
-  addListener: function(name, callback) {
+  addListener: function(name, callback, target) {
     if (! callback) { return this; }
+
     this.__listeners__ || (this.__listeners__ = {});
     var listeners = this.__listeners__[name] || (this.__listeners__[name] = []);
-    listeners.push(callback);
+
+    listeners.push({
+      callback: callback,
+      target: target || this
+    });
+
     return this;
   },
 
@@ -240,9 +246,8 @@ Skull.Events = {
     if (! this.__listeners__) { return this; }
     if (listeners = this.__listeners__[eventName]) {
       for (var i = 0; i < listeners.length; i++) {
-        var callback = listeners[i];
-        // TODO: Set the target for the event
-        callback.apply(this, params);
+        var callback = listeners[i].callback;
+        callback.apply(listeners[i].target, params);
       }
     }
     return this;
