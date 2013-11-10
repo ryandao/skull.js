@@ -34,7 +34,7 @@ Skull.History = Skull.Object.extend({
       }
     }
 
-    return this.loadUrl(this.root);
+    return this.loadUrl();
   },
 
   getFragment: function() {
@@ -69,7 +69,8 @@ Skull.History = Skull.Object.extend({
   // of the change in url. Normally there's always one
   // observer which is the app router.
   loadUrl: function(fragment) {
-    fragment = this.fragment = this.normalizeFragment(fragment);
+    fragment = fragment || this.location.pathname;
+    this.fragment = this.normalizeFragment(fragment);
     this.sendEvent('url:changed');
   },
 
@@ -111,7 +112,9 @@ Skull.Router = Skull.Object.extend({
     var routeClass = this.routeMapping[fragment];
 
     if (routeClass) {
-      this.currentRoute = routeClass.create();
+      var route = routeClass.create();
+      this.currentRoute = route;
+      route.setup();
     } else {
       return false;
     }
