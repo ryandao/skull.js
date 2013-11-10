@@ -88,6 +88,16 @@ Skull.History = Skull.Object.extend({
   }
 });
 
+/**
+ * SkullJS Router.
+ * Heavily inspired by Backbone Router.
+ * By default each `Application` object will have a router
+ * associated. Define the routes for the application by:
+ *
+ *     myApp.router.define({
+ *       'users': myApp.UsersRoute
+ *     })
+ */
 Skull.Router = Skull.Object.extend({
   currentRoute: Skull.P,
   routeMapping: {},
@@ -109,19 +119,48 @@ Skull.Router = Skull.Object.extend({
 
   // Load the route associating to a url fragment.
   loadRoute: function(fragment) {
-    var routeClass = this.routeMapping[fragment];
+    var router = this;
 
-    if (routeClass) {
-      var route = routeClass.create();
-      this.currentRoute = route;
-      route.setup();
-    } else {
-      return false;
-    }
+    $.each(this.routeMapping, function(route, routeClass) {
+      route = (route instanceof RegExp) ? route : router._routeToRegExp(route);
+      if (route.test(fragment) && routeClass) {
+        var args = router._extractParameters(route, fragment);
+        router.currentRoute = routeClass.create();
+        router.currentRoute.setup(args);
+        return true;
+      }
+    })
   },
 
   // Proxy to History `navigate`
   navigate: function(fragment) {
     this.history.navigate(fragment);
+  },
+
+  // Convert a route string into a regular expression, suitable for matching
+  // against the current location hash.
+  _routeToRegExp: function(route) {
+    var optionalParam = /\((.*?)\)/g;
+    var namedParam    = /(\(\?)?:\w+/g;
+    var splatParam    = /\*\w+/g;
+    var escapeRegExp  = /[\-{}\[\]+?.,\\\^$|#\s]/g;
+
+    route = route.replace(escapeRegExp, '\\$&')
+                 .replace(optionalParam, '(?:$1)?')
+                 .replace(namedParam, function(match, optional) {
+                   return optional ? match : '([^\/]+)';
+                 })
+                 .replace(splatParam, '(.*?)');
+    return new RegExp('^' + route + '$');
+  },
+
+  // Given a route, and a URL fragment that it matches, return the array of
+  // extracted decoded parameters. Empty or unmatched parameters will be
+  // treated as `null` to normalize cross-browser behavior.
+  _extractParameters: function(route, fragment) {
+    var params = route.exec(fragment).slice(1);
+    return params.map(function(param) {
+      return param ? decodeURIComponent(param) : null;
+    });
   }
 });
