@@ -29,17 +29,29 @@ Skull.History = Skull.Object.extend({
         _this.checkUrl();
       };
     } else if (this.useHashChange) {
-      window.onhashchange = function() {
+      $(window).on('hashchange', function() {
         _this.checkUrl();
-      }
+      });
     }
 
     return this.loadUrl();
   },
 
   getFragment: function() {
-    var fragment = this.location.pathname;
+    var fragment;
+
+    if (this.usePushState && ! this.useHashChange) {
+      fragment = this.location.pathname;
+    } else {
+      fragment = this.getHash();
+    }
+
     return this.normalizeFragment(fragment);
+  },
+
+  getHash: function() {
+    var match = window.location.href.match(/#(.*)$/);
+    return match ? match[1] : '';
   },
 
   normalizeFragment: function(fragment) {
@@ -83,8 +95,6 @@ Skull.History = Skull.Object.extend({
     } else if (this.useHashChange) {
       this.location.hash = '#' + this.normalizeFragment(fragment);
     }
-
-    this.loadUrl(fragment);
   }
 });
 
@@ -121,7 +131,7 @@ Skull.Router = Skull.Object.extend({
   loadRoute: function(fragment) {
     var router = this;
 
-    $.each(this.routeMapping, function(route, routeClass) {
+    return $.each(this.routeMapping, function(route, routeClass) {
       route = (route instanceof RegExp) ? route : router._routeToRegExp(route);
       if (route.test(fragment) && routeClass) {
         var args = router._extractParameters(route, fragment);
