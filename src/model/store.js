@@ -3,20 +3,14 @@ Skull.Store = Skull.Object.extend({
     if (typeof id === 'undefined') {
       return this.findAll(modelClass);
     } else {
-      var url = modelClass.prototype.url + "/" + id;
-
-      $.ajax({
+      var url = modelClass.prototype.recordUrl(id);
+      var promise = $.ajax({
         url: url
-      }).done(successCallback)
-        .fail(failureCallback);
-    }
+      });
 
-    function successCallback(data) {
-      console.log(data);
-    }
-
-    function failureCallback(data) {
-      console.log(data);
+      return Skull.Record.create({
+        promise: promise
+      });
     }
   },
 
