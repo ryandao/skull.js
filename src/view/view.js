@@ -126,5 +126,14 @@ Skull.View = Skull.Object.extend({
         });
       }
     });
+  },
+
+  /**
+   * Clean up the view for removal.
+   * Detached the elements out of the DOM and remove all events.
+   */
+  cleanup: function() {
+    this.$.remove();
+    return this;
   }
 });
