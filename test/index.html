@@ -23,6 +23,11 @@
 
       return curr_date + " " + m_names[curr_month] + " " + curr_year;
     }
+    function navigateToMovie(movieIndex){
+      console.log(movieIndex)
+      var url = "movies/" + movieIndex;
+      App.router.navigate(url);
+    }
   </script>
 </head>
 
@@ -53,7 +58,7 @@
         {{#each "controller.movies"}}
             <div class="span4">
               <div class="cell">
-                <img class="clickable" id="viewMovie" src="{{img_url}}">
+                <img onclick='navigateToMovie({{id}})' class="clickable" id="viewMovie" src="{{img_url}}">
                 <h4 style="text-align:center">{{bind "title"}}</h4>
                 <p></p>
                 <p style="text-align:center">{{updated_at}}</p>
