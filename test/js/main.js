@@ -20,6 +20,15 @@ console.log("d");
       return 'http://cs3213.herokuapp.com/movies/' + id + '.json';
     }
   });
+  App.Review = Skull.Model.extend({
+    url: function(){
+      return 'http://cs3213.herokuapp.com/movies/622/reviews.json';
+    },
+
+    recordUrl: function(id){
+      return 'http://cs3213.herokuapp.com/movies/' + id + '/reviews.json';
+    }
+  })
 
   App.store = Skull.Store.create();
   // End Model
@@ -47,10 +56,13 @@ console.log("d");
       this.set('movies', App.store.findQuery(App.Movie, { page: this.pageNum }));
     }.observes('pageNum'),
 
+
+
     initialize: function() {
       this.set('movies', App.store.find(App.Movie));
     }
   });
+
 
   App.MoviesView = Skull.View.extend({
     templateId: 'movies',
@@ -94,8 +106,11 @@ console.log("d");
       var record = App.store.find(App.Movie, movie_id);
       var route = this;
       this.controller.set('movie', record);
-
+      var reviews = App.store.find(App.Review, movie_id);
+      this.controller.set('reviews', reviews);
+      //console.log("hallo");
       record.recordDidLoad = function() {
+
         route.view.render();
       };
     }
