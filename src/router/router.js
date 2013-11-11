@@ -133,10 +133,12 @@ Skull.Router = Skull.Object.extend({
 
     return $.each(this.routeMapping, function(route, routeClass) {
       route = (route instanceof RegExp) ? route : router._routeToRegExp(route);
+
       if (route.test(fragment) && routeClass) {
         var args = router._extractParameters(route, fragment);
-        router.currentRoute = routeClass.create();
-        router.currentRoute.setup(args);
+        var routeObj = routeClass.create();
+        router.currentRoute = routeObj;
+        routeObj.execute.apply(routeObj, args);
         return true;
       }
     })
@@ -144,7 +146,7 @@ Skull.Router = Skull.Object.extend({
 
   // Proxy to History `navigate`
   navigate: function(fragment) {
-    this.history.navigate(fragment);
+    return this.history.navigate(fragment);
   },
 
   // Convert a route string into a regular expression, suitable for matching
