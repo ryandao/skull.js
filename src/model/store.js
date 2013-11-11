@@ -17,7 +17,7 @@ Skull.Store = Skull.Object.extend({
   findAll: function(modelClass) {
     return Skull.RecordArray.create({
       promise: $.ajax({
-        url: modelClass.prototype.url
+        url: modelClass.prototype.url()
       })
     });
   },
@@ -25,7 +25,7 @@ Skull.Store = Skull.Object.extend({
   findQuery: function(modelClass, query) {
     return Skull.RecordArray.create({
       promise: $.ajax({
-        url: modelClass.prototype.url,
+        url: modelClass.prototype.url(),
         data: query
       })
     });
