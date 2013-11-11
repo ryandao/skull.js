@@ -12,7 +12,9 @@ console.log("d");
 
   // Model
   App.Movie = Skull.Model.extend({
-    url: 'http://cs3213.herokuapp.com/movies.json',
+    url: function() {
+      return 'http://cs3213.herokuapp.com/movies.json'
+    },
 
     recordUrl: function(id) {
       return 'http://cs3213.herokuapp.com/movies/' + id + '.json';
@@ -28,8 +30,18 @@ console.log("d");
     pageNum: 1,
 
     nextPage: function() {
-      this.set('pageNum', this.pageNum + 1);
+      debugger;
+      console.log("got movie");
+
+      //this.set('pageNum', this.pageNum + 1);
     },
+
+    previousPage: function() {
+      debugger;
+      console.log("haha");
+
+    },
+
 
     movePage: function() {
       this.set('movies', App.store.findQuery(App.Movie, { page: this.pageNum }));
