@@ -17,28 +17,28 @@ Skull.View = Skull.Object.extend({
     });
 
     var el = $(document.createElement('div')).append(html);
-
-    if (this.$) {
-      // Re-rendering case
-      this.$.replaceWith(el);
-    } else {
-      this.rootEl.html(el);
-    }
-
+    this.rootEl.html(el);
     this.$ = el;
-    this.setupHandlers();
-    this.setupBindings();
-    this.setupCollections();
+    this.setupHelpers(el);
 
     return this;
   },
 
   /**
-    Setup the action handlers for the view's element.
+   * Set up the custom Handlebars helpers like {{bind}}, {{action}}, {{each}}
+   */
+  setupHelpers: function(el) {
+    this.setupHandlers(el);
+    this.setupBindings(el);
+    this.setupCollections(el);
+  },
+
+  /**
+    Setup the action handlers for a given DOM structure.
     It basically proxies the DOM events to the actions
     set up by the view and Handlebars template.
   */
-  setupHandlers: function() {
+  setupHandlers: function(el) {
     var eventNames = [
       'keydown', 'keyup', 'keypress', 'mousedown', 'mouseup', 'click',
       'doubleclick', 'mousemove', 'focusin', 'focusout', 'mouseenter',
@@ -46,12 +46,12 @@ Skull.View = Skull.Object.extend({
     ]
 
     for (var i = 0; i < eventNames.length; i++) {
-      this.setupHandler(eventNames[i]);
+      this.setupHandler(el, eventNames[i]);
     }
   },
 
-  setupHandler: function(eventName) {
-    this.$.on(eventName, '[data-skull-action]', function(event) {
+  setupHandler: function(el, eventName) {
+    el.on(eventName, '[data-skull-action]', function(event) {
       var actionId = $(event.currentTarget).attr('data-skull-action');
       var action = Skull.ActionHelper.actions[actionId];
       var handler = action.handler;
@@ -63,53 +63,55 @@ Skull.View = Skull.Object.extend({
   },
 
   /**
-    Set up the data binding specified using the {{bind}} helper.
+    Set up the data binding specified using the {{bind}} or {{boundIf}} helper.
   */
-  setupBindings: function() {
+  setupBindings: function(el) {
     var view = this;
     var controller = view.controller;
 
-    $('[data-skull-binding]', this.$).each(function() {
-      var el = $(this),
-          bindingId = el.attr('data-skull-binding'),
-          propertyPath = Skull.BindingHelper.bindings[bindingId].path,
-          root = Skull.BindingHelper.bindings[bindingId].root,
-          parts = propertyPath.split('.'),
-          propertyName = parts[parts.length - 1];
+    $('[data-skull-binding]', el).each(function() {
+      var el = $(this);
+      var bindingId = el.attr('data-skull-binding');
+      var bindObj = Skull.BindingHelper.bindings[bindingId];
+      var parts = bindObj.path.split('.');
+      var propertyName = parts[parts.length - 1];
+      var root;
 
       for (var i = 0; i < parts.length - 1; i++) {
-        root = root[parts[i]];
+        root = bindObj.root[parts[i]];
       }
 
       if (typeof root.addObserver !== 'undefined') {
         root.addObserver(propertyName, function() {
-          el.html(this.get(propertyName));
+          el.html(bindObj.fn(bindObj.context));
+
+          // Setup Handlebars helpers for the nested DOM if any.
+          view.setupHelpers(el);
         });
       }
     });
   },
 
-  setupCollections: function() {
+  setupCollections: function(el) {
     var view = this;
     var controller = view.controller;
 
-    $('[data-skull-collection]', this.$).each(function() {
-      var el = $(this),
-          collectionId = el.attr('data-skull-collection'),
-          propertyPath = Skull.CollectionHelper.collections[collectionId].path,
-          root = Skull.CollectionHelper.collections[collectionId].root,
-          fn = Skull.CollectionHelper.collections[collectionId].fn,
-          parts = propertyPath.split('.'),
-          propertyName = parts[parts.length - 1],
-          items = Skull.getPath(root, propertyPath);
+    $('[data-skull-collection]', el).each(function() {
+      var el = $(this);
+      var collectionId = el.attr('data-skull-collection');
+      var collectionObj = Skull.CollectionHelper.collections[collectionId];
+      var parts = collectionObj.path.split('.');
+      var propertyName = parts[parts.length - 1];
+      var items = Skull.getPath(collectionObj.root, collectionObj.path);
 
       items.forEach(function(item) {
-        el.append(fn(item));
+        el.append(collectionObj.fn(item));
       });
 
       // Add an observer for the collection
+      var root;
       for (var i = 0; i < parts.length - 1; i++) {
-        root = root[parts[i]];
+        root = collectionObj.root[parts[i]];
       }
 
       if (typeof root.addObserver !== 'undefined') {

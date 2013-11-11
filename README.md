@@ -7,15 +7,16 @@ Lightweight Javascript MVC framework
 
     App = Skull.Application.create();
 
-    App.Router.define({
+    App.router.define({
       '/movies': 'App.MoviesIndexRoute'
     });
 
     App.MoviesIndexRoute = Skull.Route.extend({
-      controller: 'App.Router.MoviesIndexController',
-      view: 'App.Router.MoviesIndexView'
-
-      // Apply naming convention to set up controller and view by default
+      controller: App.Router.MoviesIndexController,
+      view: App.Router.MoviesIndexView
+      
+      // Custom setup for the route
+      setup: function() { }
     });
 
     App.MoviesIndexController = Skull.Controller.extend({
@@ -29,7 +30,8 @@ Lightweight Javascript MVC framework
     });
 
     App.MoviesIndexView = Skull.View.extend({
-      templateName: 'movies_index'
+      templateName: 'movies_index',
+      rootEl: '#movie-list'
     })
 
     // movies_index.handlebars
