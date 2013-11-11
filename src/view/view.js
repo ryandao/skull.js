@@ -7,7 +7,6 @@ Skull.View = Skull.Object.extend({
     this.__scriptEl__ = $('#' + this.get('templateId'));
     this.__template__ = Handlebars.compile(this.__scriptEl__.html());
 
-    this.render();
     return this;
   },
 
