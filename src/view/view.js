@@ -105,7 +105,10 @@ Skull.View = Skull.Object.extend({
       var items = Skull.getPath(collectionObj.root, collectionObj.path);
 
       items.forEach(function(item) {
-        el.append(collectionObj.fn(item));
+        // The context of the helper will contain the item with the
+        // outer root object for outer context access.
+        var context = $.extend(collectionObj.root, { item: item });
+        el.append(collectionObj.fn(context));
       });
 
       // Add an observer for the collection
