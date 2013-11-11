@@ -1,18 +1,26 @@
 <head>
 
-    <title>Ramaze</title>
-    <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/css?family=Allura" rel="stylesheet" type="text/css">
-    <link href="//fonts.googleapis.com/css?family=Cinzel+Decorative:900" rel="stylesheet" type="text/css">
+  <title>Ramaze</title>
+  <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300" rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=Allura" rel="stylesheet" type="text/css">
+  <link href="//fonts.googleapis.com/css?family=Cinzel+Decorative:900" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/main.css">
   <script type="text/javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/jquery.form.min.js"></script> 
   <script type="text/javascript" src="js/handlebars.js"></script>
   <script type="text/javascript" src="js/skull.js"></script>
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
+  <script type="text/javascript" src="js/oauth.js"></script> 
 
   <script type="text/javascript">
+    $(document).ready(function() { 
+            // bind 'myForm' and provide a simple callback function 
+            $('#myForm').ajaxForm(function() { 
+                alert("Thank you for your comment!"); 
+            }); 
+    }); 
     function convertTimeStamp(mysql_date) {
       var t = mysql_date.split(/[- T : Z]/);
       var d = new Date(t[0], t[1] - 1, t[2], t[3], t[4], t[5]);
@@ -88,7 +96,7 @@
 
         <p> Created by: {{controller.movie.content.user.username}} </p>
 
-        <button id="delete-movie-btn" class="btn btn-danger">
+        <button {{action "deleteMovie"}} id="delete-movie-btn" class="btn btn-danger">
           Delete
         </button>
       </div>
@@ -96,7 +104,6 @@
 
     <div id="review-list">
       <h3> Reviews </h3>
-      
       {{#each "controller.reviews"}}
         <div class="well">
           <div class="row-fluid">
@@ -109,11 +116,22 @@
           <div class="row-fluid">
             <div class="span12">
               <p> <font color="blue">{{comment}} </font></p>
-              <button data-review-id="1" class="btn btn-danger remove-review-btn">Remove</button>
+              <button {{action "deleteReview" target id}} data-review-id="1" class="btn btn-danger remove-review-btn">Remove</button>
             </div>
           </div>
         </div>
       {{/each}}
+
+      <div class="hero-unit">
+        <form id="new-review-form">
+          <textarea class="field span10" id="comment" name="review[comment]" rows="4" placeholder="Leave a review..."/>
+          </textarea>
+          <input type="number" id="score" name="review[score]" placeholder="Give a score from 0 to 100">
+          <p> <button {{action "addReview"}} type="submit" id="add-review-btn" class="btn btn-primary btn-large">
+            Add review
+          </button> </p>
+        </form>
+      </div>
       
     </div>
 

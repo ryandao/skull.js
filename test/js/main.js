@@ -9,7 +9,48 @@ console.log("d");
       App.router.navigate('movies');
     }
   });
+  App.oauth = new function() {
+    var clientId = '73e47de1d3c355f9d99ecc2fea99ebb3';
+    var clientSecret = '265e4e4f2ed3c5e10b9208d4ded915c7';
+    //var redirectUrl = encodeURIComponent(window.location.origin + '/#oauth/callback');
+    var redirectUrl = encodeURIComponent('http://localhost/skulljs/test/index.html#movies/645/#oauth/callback');
+    this.authorize = function() {
+      var oauthUrl = 'https://cs3213.herokuapp.com/oauth/new?client_id=' + clientId
+                     + '&client_secret=' + clientSecret
+                     + '&redirect_uri=' + redirectUrl;
 
+      // Save the current route so we can come back later
+      //localStorage.setItem('currentRoute', Backbone.history.fragment);
+      window.location = oauthUrl;
+    };
+
+    this.getAccessToken = function(code, callback) {
+      var postUrl = 'https://cs3213.herokuapp.com/oauth/token.json';
+      var data = {
+        client_id: clientId,
+        client_secret: clientSecret,
+        code: code
+      };
+
+      $.ajax({
+        url: postUrl,
+        type: 'POST',
+        data: data,
+
+        success: function(data) {
+          if (data.access_token) {
+            callback(data.access_token);
+          } else {
+            console.log(data);
+          }
+        },
+
+        error: function(error) {
+          console.log(error);
+        }
+      });
+    };
+  }();
   // Model
   App.Movie = Skull.Model.extend({
     url: function() {
@@ -53,7 +94,6 @@ console.log("d");
     }.observes('pageNum'),
 
 
-
     initialize: function() {
       this.set('movies', App.store.find(App.Movie));
     }
@@ -65,6 +105,8 @@ console.log("d");
     rootEl: '#wrapper'
   });
 
+  
+
   App.MoviesRoute = Skull.Route.extend({
     controllerClass: App.MoviesController,
     viewClass: App.MoviesView
@@ -75,6 +117,90 @@ console.log("d");
   // Movie view
   App.MovieController = Skull.Controller.extend({
 
+    deleteMovie: function(e) {
+      e.preventDefault();
+
+      if (! App.oauth.access_token) {
+        App.oauth.authorize();
+        return;
+      }
+
+      var _this = this;
+      $.ajax({
+        url: 'http://cs3213.herokuapp.com/movies/' + this.movie_id + '.json',
+        type: 'DELETE',
+        data: {
+          access_token: App.oauth.access_token
+        },
+
+        success: function(data) {
+          //_this.movies.remove(_this.movies.get(_this.movie.id));
+          _this.router.navigate('movies');
+          alert("Deleted!");
+        },
+
+        error: function() {
+          alert('You cannot delete this movie!');
+        }
+      })
+    },
+
+    addReview: function(e) {
+      e.preventDefault();
+
+      if (! App.oauth.access_token) {
+        App.oauth.authorize();
+        return;
+      }
+
+      var _this = this;
+      _this.isAddingReview = true;
+      $('#new-review-form').ajaxSubmit({
+        url: 'http://cs3213.herokuapp.com/movies/' + this.movie_id + '/reviews.json',
+        type: 'POST',
+        data: {
+          access_token: "sdadsas"//Hw2.oauth.access_token
+        },
+
+        success: function(data) {
+          var review = new App.Review(data);
+          _this.reviews.add(review);
+          _this.isAddingReview = false;
+        },
+
+        error: function(error) {
+          _this.isAddingReview = false;
+          alert("Incorrect access token");
+        }
+      });
+    },
+
+    deleteReview: function(review_id) {
+
+      if (! App.oauth.access_token) {
+        App.oauth.authorize();
+        return;
+      }
+
+      var _this = this;
+      $.ajax({
+        url: 'http://cs3213.herokuapp.com/movies/' + _this.movie_id + '/reviews/' + review_id + '.json',
+        type: 'DELETE',
+        data: {
+          access_token: App.oauth.access_token
+        },
+
+        success: function(data) {
+          _this.reviews.remove(_this.reviews.get(review_id));
+        },
+
+        error: function(error) {
+          if (error.status == 401) {
+            alert("You don't have permission to do this");
+          }
+        }
+      })
+    }
   });
 
   App.MovieView = Skull.View.extend({
