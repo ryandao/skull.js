@@ -1,4 +1,4 @@
-/*! skull.js - v0.0.1 - 2013-11-11
+/*! skull.js - v0.0.1 - 2013-11-12
 * Copyright (c) 2013 ; Licensed  */
 if (typeof Skull === 'undefined') {
   // Create the core namespace object
