@@ -53,23 +53,17 @@
   <!--End movies_index template-->
 
   <!--Template for movies_view-->
-  <script type="text/x-handlebars-template" id="movie_view">
-    <div class="row-fluid" id="movie-display">
-      <div class="span4">
-          <img src={{controller.movie.content.img_url}}>
-      </div>
-
-      <div class="span7">
-        <h3>{{controller.movie.content.title}}</h3>
-
-        <p> Created by: {{controller.movie.content.user.username}} </p>
-
-        <button id="delete-movie-btn" class="btn btn-danger">
-          Delete
-        </button>
-      </div>
+  <script type="text/x-handlebars-template" id="movie-display">
+    <div class="span7">
+      <h3> {{controller.movie.content.title}} </h3>
+      {{if (! controller.movie.content.avg_score){}}
+        <p style="font-size: 14px">Average Score: Not available</p>
+      {{}else{}}
+        <p style="font-size: 12px" ALIGN="CENTER">Average Score: {{parseFloat(controller.movie.content.avg_score).toFixed(2)}}</p>
+      {{}}}
+      <p> Created by: {{controller.movie.content.user.username}} </p>
+      <p> Updated at: {{controller.movie.content.updated_at}} </p>
     </div>
-
   </script>
   <!--End movies_view template-->
 
