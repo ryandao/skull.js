@@ -65,7 +65,8 @@ Skull.RecordArray = Skull.ArrayProxy.extend({
    * TODO: Add support for RecordArray as parameter.
    */
   add: function() {
-    if (jQuery.isArray(arguments[0])) {
+    var records = jQuery.isArray(arguments[0]);
+    if (records) {
       this.set('content', this.content.concat(records));
     } else {
       this.content.push(records);
