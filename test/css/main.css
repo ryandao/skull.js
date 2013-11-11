@@ -1,0 +1,31 @@
+.navbar-fixed-top {
+  position: relative;
+}
+
+.loading-container {
+  text-align: center;
+}
+
+.loading-container .icon-spinner {
+  font-size: 60px;
+}
+
+.loading-container h6 {
+  font-size: 24px;
+}
+
+footer {
+  margin-bottom: 50px;
+}
+
+img.clickable{
+  cursor:pointer;
+}
+
+.truncate{
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgb(0,136,206);
+  font-size: 18px;
+}

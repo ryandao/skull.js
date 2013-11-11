@@ -1,0 +1,65 @@
+<head>
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/main.css">
+  <script type="text/javascript" src="js/jquery.js"></script>
+  <script type="text/javascript" src="js/handlebars.js"></script>
+  <script type="text/javascript" src="js/skull.js"></script>
+  <script type="text/javascript" src="js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+</head>
+
+<body>
+  <div class="navbar">
+    <div class="navbar-inner navbar-fixed-top">
+      <div class="container">
+        <a class="brand" href="/#movies">CS3213 Movies</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="wrapper" class="container fluid"></div>
+
+  <!--Template for movies_index-->
+  <script type="text/x-handlebars-template" id="movies">
+    <div class="page-header row-fluid">
+      <h1 class="span10">Movie List</h1>
+      <a href="#movies/new">
+        <button class="btn btn-primary"> New movies </button>
+      </a>
+    </div>
+
+    <div id="movie-list">
+      <h3>{{bind "controller.pageTitle"}}</h3>
+      <ul>
+        {{#each "controller.movies"}}
+          <li>{{bind "title"}}</li>
+        {{/each}}
+      </ul>
+
+      <a {{action "nextPage"}} href="#">Next Page</a>
+    </div>
+  </script>
+  <!--End movies_index template-->
+
+  <!--Template for movies_view-->
+  <script type="text/x-handlebars-template" id="movie_view">
+    <div class="row-fluid" id="movie-display">
+      <div class="span4">
+          <img src={{controller.movie.content.img_url}}>
+      </div>
+
+      <div class="span7">
+        <h3>{{controller.movie.content.title}}</h3>
+
+        <p> Created by: {{controller.movie.content.user.username}} </p>
+
+        <button id="delete-movie-btn" class="btn btn-danger">
+          Delete
+        </button>
+      </div>
+    </div>
+
+  </script>
+  <!--End movies_view template-->
+
+</body>
