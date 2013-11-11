@@ -1,8 +1,10 @@
 Skull.ActionHelper = (function() {
   var actions = {};
-  var actionId = 0;
+  var idCounter = 0;
 
   var registerAction = function(actionName, options) {
+    var actionId = (++idCounter).toString();
+
     var handler = function(event) {
       event.preventDefault();
 
@@ -35,16 +37,32 @@ Skull.ActionHelper = (function() {
   };
 })();
 
+/**
+ * Helper to register a property binding to the DOM.
+ * A binding object contains:
+ *   `root`: The root object from which we can look up the property.
+ *   `propertyPath`: The path to the bound property.
+ *   `context`: The context of the template to evaluate. If no context is passed
+ *              assume `root` as context.
+ *   `fn`: A context function to help with rendering the DOM upon property changes.
+ *         It defaults to `Skull.getPath`.
+ */
 Skull.BindingHelper = (function() {
   var bindings = {};
   var idCounter = 0;
 
-  var registerBinding = function(root, propertyPath) {
+  var registerBinding = function(root, propertyPath, fn, context) {
     var bindingId = (++idCounter).toString();
+    fn = fn || function() {
+      return Skull.getPath(root, propertyPath);
+    }
+    context = context || root;
 
     bindings[bindingId] = {
       root: root,
-      path: propertyPath
+      path: propertyPath,
+      fn: fn,
+      context: context
     };
 
     return bindingId;
@@ -183,6 +201,26 @@ Handlebars.registerHelper('each', function(propertyPath, options) {
   // and let the view fill the data in later.
   var collectionId = Skull.CollectionHelper.registerCollection(this, propertyPath, options.fn);
   return new Handlebars.SafeString("<div data-skull-collection=" + collectionId + "></div>");
+});
+
+/**
+ * The `boundIf` helper can be used instead of the normal `if` helper if
+ * you want the conditional statement to reevaluate itself whenever the
+ * value inside changes.
+ */
+Handlebars.registerHelper('boundIf', function(propertyPath, options) {
+  var fn = function(context) {
+    if (Skull.getPath(context, propertyPath)) {
+      return options.fn(context);
+    } else {
+      return options.inverse(context);
+    }
+  };
+
+  var bindingId = Skull.BindingHelper.registerBinding(this, propertyPath, fn);
+  return new Handlebars.SafeString("<div data-skull-binding=" + bindingId + ">" +
+                                      fn(this) +
+                                   "</div>");
 });
 
 Skull.getPath = function(root, path) {

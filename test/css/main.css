@@ -30,21 +30,19 @@ img.clickable{
   font-size: 18px;
 }
 
-
-
 body {
-background: url("imgs/grey_wash_wall.png");
-color: #FFF;
-font-family: 'Open Sans';
-font-weight: 300;
-font-size: 1.3em;
--webkit-text-stroke: 1px rgba(0,0,0,0.1);
+  background: url("imgs/grey_wash_wall.png");
+  color: #FFF;
+  font-family: 'Open Sans';
+  font-weight: 300;
+  font-size: 1.3em;
+  -webkit-text-stroke: 1px rgba(0,0,0,0.1);
 }
 
 .brand {
-font-family: 'Cinzel Decorative';
-font-size: 20px !important;
-text-align: center;
+  font-family: 'Cinzel Decorative';
+  font-size: 20px !important;
+  text-align: center;
 }
 
 #header-wrap {
@@ -54,6 +52,7 @@ text-align: center;
     width: 100%;
     z-index: 100;
 }
+
 #container{ 
     margin-top: 200px;
 }
