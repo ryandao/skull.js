@@ -1,4 +1,9 @@
 <head>
+
+    <title>Ramaze</title>
+    <link href="//fonts.googleapis.com/css?family=Open+Sans:400,300" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Allura" rel="stylesheet" type="text/css">
+    <link href="//fonts.googleapis.com/css?family=Cinzel+Decorative:900" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="css/bootstrap.min.css">
   <link rel="stylesheet" href="css/main.css">
   <script type="text/javascript" src="js/jquery.js"></script>
@@ -10,9 +15,9 @@
 
 <body>
   <div class="navbar">
-    <div class="navbar-inner navbar-fixed-top">
+    <div style="background-color:rgba(255,0,0,0.5)" class="navbar-inner navbar-fixed-top">
       <div class="container">
-        <a class="brand" href="/#movies">CS3213 Movies</a>
+        <a class="brand" href="/#movies">Ramaze Movies: Based on Skull.js</a>
       </div>
     </div>
   </div>
@@ -22,17 +27,23 @@
   <!--Template for movies_index-->
   <script type="text/x-handlebars-template" id="movies">
     <div class="page-header row-fluid">
-      <h1 class="span10">Movie List</h1>
+      <h1 class="span10">Showing...</h1>
       <a href="#movies/new">
         <button class="btn btn-primary"> New movies </button>
       </a>
     </div>
 
     <div id="movie-list">
-      <h3>{{bind "controller.pageTitle"}}</h3>
       <ul>
         {{#each "controller.movies"}}
-          <li>{{bind "title"}}</li>
+          <li class="span4">
+            <div class="thumbnail">
+              <img class="clickable" id="viewMovie" src="{{img_url}}">
+              <h4 class="truncate">{{bind "title"}}</h4>
+              <p></p>
+              <p>11 November 2013</p>
+            </div>
+          </li>
         {{/each}}
       </ul>
 
