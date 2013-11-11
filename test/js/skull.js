@@ -561,7 +561,19 @@ Handlebars.registerHelper('bind', function(propertyPath, options) {
                                    "</span>");
 });
 
-Handlebars.registerHelper('each', function(propertyPath, options) {
+/**
+ * The {{each}} helper iterates through an array or array-like object.
+ * The iteration is asynchrously for the case of RecordArray.
+ * Sample use case:
+ *
+ *     {{#each controller.movies}}
+ *       {{item.title}}
+ *     {{/each}}
+ */
+Handlebars.registerHelper('each', function(propertyPath) {
+  var options = arguments[arguments.length - 1],
+      contexts = Array.prototype.slice(arguments, 1, -1);
+
   // To support ArrayProxy and RecordArray, only render a wrapper
   // and let the view fill the data in later.
   var collectionId = Skull.CollectionHelper.registerCollection(this, propertyPath, options.fn);
@@ -948,7 +960,10 @@ Skull.View = Skull.Object.extend({
       var items = Skull.getPath(collectionObj.root, collectionObj.path);
 
       items.forEach(function(item) {
-        el.append(collectionObj.fn(item));
+        // The context of the helper will contain the item with the
+        // outer root object for outer context access.
+        var context = $.extend(collectionObj.root, { item: item });
+        el.append(collectionObj.fn(context));
       });
 
       // Add an observer for the collection

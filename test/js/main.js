@@ -236,6 +236,7 @@ console.log("d");
       this.controller.set('reviews', App.store.find(App.Review));
       this.controller.reviews.addObserver('isLoaded', function() {
         controller.set('isLoadingReviews', ! this.isLoaded);
+        
       });
 
       record.recordDidLoad = function() {
