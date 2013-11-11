@@ -123,7 +123,8 @@ Skull.View = Skull.Object.extend({
           var newItems = this.get(propertyName);
 
           newItems.forEach(function(item) {
-            newEl.append(collectionObj.fn(item));
+            var context = $.extend(collectionObj.root, { item: item });
+            newEl.append(collectionObj.fn(context));
           });
 
           el.replaceWith(newEl);
