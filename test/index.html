@@ -11,11 +11,24 @@
   <script type="text/javascript" src="js/skull.js"></script>
   <script type="text/javascript" src="js/bootstrap.min.js"></script>
   <script type="text/javascript" src="js/main.js"></script>
+
+  <script type="text/javascript">
+    function convertTimeStamp(mysql_date) {
+      var t = mysql_date.split(/[- T : Z]/);
+      var d = new Date(t[0], t[1] - 1, t[2], t[3], t[4], t[5]);
+      var m_names = new Array("January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December");
+      var curr_date = d.getDate();
+      var curr_month = d.getMonth();
+      var curr_year = d.getFullYear();
+
+      return curr_date + " " + m_names[curr_month] + " " + curr_year;
+    }
+  </script>
 </head>
 
 <body>
   <div class="navbar">
-    <div style="background-color:rgba(255,0,0,0.5)" class="navbar-inner navbar-fixed-top">
+    <div style="position:fixed; box-shadow: 0 5px 15px rgba(0,0,0,0.5) !important; background: url("fabric.png") !important;" class="navbar-inner navbar-fixed-top">
       <div class="container">
         <a class="brand" href="/#movies">Ramaze Movies: Based on Skull.js</a>
       </div>
@@ -29,26 +42,31 @@
     <div class="page-header row-fluid">
       <h1 class="span10">Showing...</h1>
       <a href="#movies/new">
+        <br/>
+        <br/>
         <button class="btn btn-primary"> New movies </button>
       </a>
     </div>
 
     <div id="movie-list">
-      <ul>
+      <div class="row">
         {{#each "controller.movies"}}
-          <li class="span4">
-            <div class="thumbnail">
-              <img class="clickable" id="viewMovie" src="{{img_url}}">
-              <h4 class="truncate">{{bind "title"}}</h4>
-              <p></p>
-              <p>11 November 2013</p>
+            <div class="span4">
+              <div class="cell">
+                <img class="clickable" id="viewMovie" src="{{img_url}}">
+                <h4 style="text-align:center">{{bind "title"}}</h4>
+                <p></p>
+                <p style="text-align:center">{{updated_at}}</p>
+                <br/>
+                <br/>
+              </div>
             </div>
-          </li>
         {{/each}}
-      </ul>
-
-      <a {{action "previousPage"}} href="#">Previous Page&nbsp&nbsp</a>
-      <a {{action "nextPage"}} href="#">&nbsp&nbspNext Page</a>
+      </div>
+      <a {{action "previousPage"}} style="color:white" href="#">Previous Page&nbsp&nbsp</a>
+      <a {{action "nextPage"}} style="color:white" href="#">&nbsp&nbspNext Page</a>
+      <br/>
+      <br/>
     </div>
   </script>
   <!--End movies_index template-->

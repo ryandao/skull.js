@@ -30,15 +30,15 @@ console.log("d");
     pageNum: 1,
 
     nextPage: function() {
-      debugger;
-      console.log("got movie");
-
-      //this.set('pageNum', this.pageNum + 1);
+      this.set('pageNum', this.pageNum + 1);
     },
 
     previousPage: function() {
-      debugger;
       console.log("haha");
+
+      if(this.pageNum == 1)
+        return;
+      this.set('pageNum', this.pageNum - 1);
 
     },
 
