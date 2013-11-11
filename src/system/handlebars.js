@@ -1,8 +1,10 @@
 Skull.ActionHelper = (function() {
   var actions = {};
-  var actionId = 0;
+  var idCounter = 0;
 
   var registerAction = function(actionName, options) {
+    var actionId = (++idCounter).toString();
+
     var handler = function(event) {
       event.preventDefault();
 
