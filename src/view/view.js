@@ -22,7 +22,7 @@ Skull.View = Skull.Object.extend({
       // Re-rendering case
       this.$.replaceWith(el);
     } else {
-      this.rootEl.append(el);
+      this.rootEl.html(el);
     }
 
     this.$ = el;
