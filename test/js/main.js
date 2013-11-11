@@ -21,14 +21,10 @@ console.log("d");
     }
   });
   App.Review = Skull.Model.extend({
-    url: function(){
-      return 'http://cs3213.herokuapp.com/movies/622/reviews.json';
-    },
-
-    recordUrl: function(id){
-      return 'http://cs3213.herokuapp.com/movies/' + id + '/reviews.json';
+    url: function() {
+      return 'http://cs3213.herokuapp.com/movies/' + this.movie_id + '/reviews.json';
     }
-  })
+  });
 
   App.store = Skull.Store.create();
   // End Model
@@ -106,11 +102,18 @@ console.log("d");
       var record = App.store.find(App.Movie, movie_id);
       var route = this;
       this.controller.set('movie', record);
-      var reviews = App.store.find(App.Review, movie_id);
-      this.controller.set('reviews', reviews);
-      //console.log("hallo");
-      record.recordDidLoad = function() {
+      this.controller.set('movie_id', movie_id);
 
+      // Hack to pass movie_id to review model class
+      var controller = this.controller;
+      App.Review.prototype.movie_id = movie_id;
+      this.controller.set('reviews', App.store.find(App.Review));
+      this.controller.reviews.addObserver('isLoaded', function() {
+        controller.set('isLoadingReviews', ! this.isLoaded);
+      });
+
+      record.recordDidLoad = function() {
+        controller.set('isLoadingMovie', false);
         route.view.render();
       };
     }
